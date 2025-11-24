@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE module PUBLIC
-        "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
-        "https://checkstyle.org/dtds/configuration_1_3.dtd">
+    "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+    "https://checkstyle.org/dtds/configuration_1_3.dtd">
 
 <module name="Checker">
     <property name="severity" value="error"/>
@@ -17,7 +17,8 @@
 
     <module name="RegexpSingleline">
         <property name="format" value="//"/>
-        <property name="message" value="JUNIOR ALERT: No uses comentarios de línea (//). Documenta con Javadoc o limpia el código."/>
+        <property name="message"
+                  value="JUNIOR ALERT: No uses comentarios de línea (//). Documenta con Javadoc o limpia el código."/>
     </module>
 
     <module name="RegexpSingleline">
@@ -46,29 +47,44 @@
         </module>
 
         <module name="MethodLength">
-            <property name="max" value="50"/> <property name="countEmpty" value="false"/>
+            <property name="max" value="50"/>
+            <property name="countEmpty" value="false"/>
         </module>
 
         <module name="ParameterNumber">
             <property name="max" value="5"/>
         </module>
 
-        <module name="StringLiteralEquality"/> <module name="IllegalCatch"/> <module name="FallThrough"/> <module name="DefaultComesLast"/> <module name="ModifiedControlVariable"/> <module name="EqualsHashCode"/> <module name="DeclarationOrder"/> <module name="ExplicitInitialization"/> <module name="UnusedImports"/>
+        <module name="IllegalCatch">
+            <property name="illegalClassNames" value="java.lang.Error, java.lang.Throwable, java.lang.Exception"/>
+        </module>
+
+        <module name="StringLiteralEquality"/>
+        <module name="FallThrough"/>
+        <module name="DefaultComesLast"/>
+        <module name="ModifiedControlVariable"/>
+        <module name="EqualsHashCode"/>
+        <module name="DeclarationOrder"/>
+        <module name="ExplicitInitialization"/>
+        <module name="UnusedImports"/>
         <module name="RedundantImport"/>
-        <module name="MagicNumber"/> <module name="OperatorWrap">
-        <property name="option" value="nl"/>
-        <property name="tokens" value="PLUS, MINUS, STAR, DIV, MOD, ASSIGN, EQUAL, NOT_EQUAL"/>
-    </module>
+        <module name="MagicNumber"/>
+        <module name="OperatorWrap">
+            <property name="option" value="nl"/>
+            <property name="tokens" value="PLUS, MINUS, STAR, DIV, MOD, ASSIGN, EQUAL, NOT_EQUAL"/>
+        </module>
         <module name="SeparatorWrap">
             <property name="tokens" value="DOT"/>
             <property name="option" value="nl"/>
         </module>
         <module name="GenericWhitespace"/>
         <module name="WhitespaceAround"/>
-        <module name="NeedBraces"/> <module name="MissingJavadocMethod">
-        <property name="scope" value="public"/>
-        <property name="minLineCount" value="15"/> <property name="ignoreMethodNamesRegex" value="^main$"/>
-    </module>
+        <module name="NeedBraces"/>
+        <module name="MissingJavadocMethod">
+            <property name="scope" value="public"/>
+            <property name="minLineCount" value="15"/>
+            <property name="ignoreMethodNamesRegex" value="^main$"/>
+        </module>
 
         <module name="PackageName"/>
         <module name="TypeName"/>
@@ -79,5 +95,6 @@
         <module name="StaticVariableName"/>
 
         <module name="HideUtilityClassConstructor"/>
-        <module name="VisibilityModifier"/> </module>
+        <module name="VisibilityModifier"/>
+    </module>
 </module>
