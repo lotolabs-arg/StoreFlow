@@ -77,4 +77,18 @@ public final class Guard {
             throw new DomainException(fieldName + " must be greater than zero.");
         }
     }
+
+    /**
+     * Validates that a double value represents a whole number (no decimals).
+     * Used for Unit types that cannot be fractioned (e.g. "1.5 Bottles").
+     *
+     * @param value     the number to check
+     * @param fieldName the name of the field (for the error message)
+     * @throws DomainException if the value has decimals
+     */
+    public static void againstFractional(double value, String fieldName) {
+        if (value % 1 != 0) {
+            throw new DomainException(fieldName + " must be a whole number.");
+        }
+    }
 }
