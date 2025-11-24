@@ -10,48 +10,50 @@ import jakarta.persistence.Table;
 
 /**
  * Represents a physical item in the inventory.
- * Manages stock levels, unit types, and pricing rules.
+ * Manages stock levels, identification (barcode) and replacement cost.
  */
 @Entity
 @Table(name = "products")
 public class Product extends BaseEntity {
 
     private String name;
+    private String barcode;
     private String description;
 
     private double stockQuantity;
+    private double cost;
 
     @Enumerated(EnumType.STRING)
     private UnitType unitType;
 
     protected Product() {
-
     }
 
-    public Product(String name, UnitType unitType, double initialStock) {
+    public Product(String name, String barcode, UnitType unitType, double initialStock, double cost) {
         Guard.againstNullOrEmpty(name, "Product name");
+        Guard.againstNullOrEmpty(barcode, "Barcode");
         Guard.againstNull(unitType, "Unit Type");
         Guard.againstNegative(initialStock, "Initial stock");
+        Guard.againstNegative(cost, "Cost");
 
         this.name = name;
+        this.barcode = barcode;
         this.unitType = unitType;
+        this.cost = cost;
 
         validateStockForUnitType(initialStock, unitType);
         this.stockQuantity = initialStock;
     }
 
-    public void addStock(double quantity) {
-        Guard.againstNegative(quantity, "Quantity to add");
-        validateStockForUnitType(quantity, this.unitType);
+    public void restock(double quantityIn, double newEntryCost) {
+        Guard.againstZeroOrNegative(quantityIn, "Quantity to add");
+        Guard.againstZeroOrNegative(newEntryCost, "New Entry Cost");
+        validateStockForUnitType(quantityIn, this.unitType);
 
-        this.stockQuantity += quantity;
+        this.cost = newEntryCost;
+        this.stockQuantity += quantityIn;
     }
 
-    /**
-     * Decreases the inventory count based on a sale or adjustment.
-     * * @param quantity the amount to reduce
-     * @throws DomainException if there is insufficient stock
-     */
     public void reduceStock(double quantity) {
         Guard.againstNegative(quantity, "Quantity to reduce");
         validateStockForUnitType(quantity, this.unitType);
@@ -62,17 +64,18 @@ public class Product extends BaseEntity {
         this.stockQuantity -= quantity;
     }
 
-    /**
-     * Ensures that UNIT types do not have fractional stock.
-     */
     private void validateStockForUnitType(double quantity, UnitType type) {
-        if (type == UnitType.UNIT) {
-            Guard.againstFractional(quantity, "Stock for UNIT products");
+        if (!type.allowsFractions()) {
+            Guard.againstFractional(quantity, "Stock for " + type + " products");
         }
     }
 
     public String getName() {
         return name;
+    }
+
+    public String getBarcode() {
+        return barcode;
     }
 
     public void setDescription(String description) {
@@ -89,5 +92,9 @@ public class Product extends BaseEntity {
 
     public UnitType getUnitType() {
         return unitType;
+    }
+
+    public double getCost() {
+        return cost;
     }
 }
