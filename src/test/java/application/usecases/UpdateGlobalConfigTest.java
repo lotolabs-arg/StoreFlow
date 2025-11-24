@@ -5,19 +5,21 @@ import domain.common.DomainException;
 import domain.configuration.GlobalConfig;
 import domain.users.User;
 import domain.users.UserRole;
+
+import java.math.BigDecimal;
+import java.util.Optional;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class UpdateGlobalConfigTest {
 
-    private static final double TEST_MARGIN = 0.50;
+    private static final BigDecimal TEST_MARGIN = new BigDecimal("0.50");
 
     private final GlobalConfigRepository fakeRepo = new GlobalConfigRepository() {
-        private GlobalConfig stored = new GlobalConfig(0.10);
+        private GlobalConfig stored = new GlobalConfig(new BigDecimal("0.10"));
 
         @Override
         public GlobalConfig save(GlobalConfig config) {
@@ -38,11 +40,11 @@ class UpdateGlobalConfigTest {
     void shouldAllowAdminToUpdate() {
         User admin = new User("admin", "1234", UserRole.ADMIN);
 
-        useCase.execute(admin, 0.45);
+        useCase.execute(admin, new BigDecimal("0.45"));
 
-        assertEquals(0.45, fakeRepo.find()
-                .get()
-                    .getDefaultProfitMargin());
+        assertEquals(new BigDecimal("0.45"), fakeRepo.find()
+            .get()
+            .getDefaultProfitMargin());
     }
 
     @Test
@@ -63,7 +65,7 @@ class UpdateGlobalConfigTest {
         User admin = new User("admin", "1234", UserRole.ADMIN);
 
         assertThrows(DomainException.class, () -> {
-            useCase.execute(admin, 50.0);
+            useCase.execute(admin, new BigDecimal("50.0"));
         });
     }
 }
