@@ -31,7 +31,7 @@ public class Product extends BaseEntity {
 
     public Product(String name, String barcode, UnitType unitType, double initialStock, double cost) {
         Guard.againstNullOrEmpty(name, "Product name");
-        Guard.againstNullOrEmpty(barcode, "Barcode"); // Validación obligatoria
+        Guard.againstNullOrEmpty(barcode, "Barcode");
         Guard.againstNull(unitType, "Unit Type");
         Guard.againstNegative(initialStock, "Initial stock");
         Guard.againstNegative(cost, "Cost");
@@ -65,8 +65,8 @@ public class Product extends BaseEntity {
     }
 
     private void validateStockForUnitType(double quantity, UnitType type) {
-        if (type == UnitType.UNIT) {
-            Guard.againstFractional(quantity, "Stock for UNIT products");
+        if (!type.allowsFractions()) {
+            Guard.againstFractional(quantity, "Stock for " + type + " products");
         }
     }
 
