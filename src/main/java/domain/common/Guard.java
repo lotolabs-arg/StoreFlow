@@ -9,8 +9,10 @@ package domain.common;
  */
 public final class Guard {
 
-    private Guard() {
+    private static final double SUSPICIOUS_MARGIN_THRESHOLD = 10.0;
+    private static final int PERCENTAGE_MULTIPLIER = 100;
 
+    private Guard() {
     }
 
     /**
@@ -89,6 +91,22 @@ public final class Guard {
     public static void againstFractional(double value, String fieldName) {
         if (value % 1 != 0) {
             throw new DomainException(fieldName + " must be a whole number.");
+        }
+    }
+
+    /**
+     * Validates that a percentage value is within a realistic range.
+     * Prevents typos like entering '50' (5000%) instead of '0.50' (50%).
+     *
+     * @param value     the value to check
+     * @param fieldName the name of the field
+     */
+    public static void againstUnrealisticProfitMargin(double value, String fieldName) {
+        if (value > SUSPICIOUS_MARGIN_THRESHOLD) {
+            throw new DomainException(fieldName
+                + " is suspiciously high (" + value + "). "
+                + "Did you mean " + (value / PERCENTAGE_MULTIPLIER)
+                + "? (Values are in decimals: 0.50 = 50%)");
         }
     }
 }
