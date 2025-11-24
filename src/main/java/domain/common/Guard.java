@@ -1,6 +1,7 @@
 package domain.common;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * Static utility class for defensive programming and input validation.
@@ -53,7 +54,7 @@ public final class Guard {
         if (value != null && value.compareTo(BigDecimal.valueOf(SUSPICIOUS_MARGIN_THRESHOLD)) > 0) {
             throw new DomainException(fieldName
                 + " is suspiciously high (" + value + "). "
-                + "Did you mean " + (value.divide(BigDecimal.valueOf(PERCENTAGE_MULTIPLIER)))
+                + "Did you mean " + (value.divide(BigDecimal.valueOf(PERCENTAGE_MULTIPLIER), RoundingMode.HALF_UP))
                 + "? (Values are in decimals: 0.50 = 50%)");
         }
     }
