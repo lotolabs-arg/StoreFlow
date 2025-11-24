@@ -3,7 +3,8 @@ package infrastructure.ui;
 import application.interfaces.UserRepository;
 import application.session.SessionContext;
 import application.usecases.LoginUser;
-import infrastructure.persistence.FakeUserRepository;
+import infrastructure.persistence.SqliteUserRepository;
+import infrastructure.persistence.seed.DatabaseSeeder;
 import infrastructure.ui.controller.LoginController;
 import java.io.IOException;
 import javafx.application.Application;
@@ -17,7 +18,9 @@ public class MainApp extends Application {
     @Override
     public void start(Stage stage) throws IOException {
 
-        UserRepository userRepository = new FakeUserRepository();
+        UserRepository userRepository = new SqliteUserRepository();
+        new DatabaseSeeder(userRepository).seed();
+
         SessionContext sessionContext = SessionContext.getInstance();
         LoginUser loginUserUseCase = new LoginUser(userRepository, sessionContext);
 
