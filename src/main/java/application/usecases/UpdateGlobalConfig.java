@@ -4,10 +4,11 @@ import application.interfaces.GlobalConfigRepository;
 import domain.common.DomainException;
 import domain.configuration.GlobalConfig;
 import domain.users.User;
+import java.math.BigDecimal;
 
 public class UpdateGlobalConfig {
 
-    private static final double DEFAULT_PROFIT_MARGIN = 0.50;
+    private static final BigDecimal DEFAULT_PROFIT_MARGIN = new BigDecimal("0.50");
 
     private final GlobalConfigRepository repository;
 
@@ -15,7 +16,7 @@ public class UpdateGlobalConfig {
         this.repository = repository;
     }
 
-    public void execute(User actor, double newMargin) {
+    public void execute(User actor, BigDecimal newMargin) {
         if (!actor.isAdmin()) {
             throw new DomainException("Access Denied: Only ADMIN can modify global configuration.");
         }

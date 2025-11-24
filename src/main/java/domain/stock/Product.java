@@ -3,25 +3,29 @@ package domain.stock;
 import domain.common.BaseEntity;
 import domain.common.DomainException;
 import domain.common.Guard;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 
 /**
  * Represents a physical item in the inventory.
- * Manages stock levels, identification (barcode) and replacement cost.
+ * Uses precise arithmetic for financial and stock calculations.
  */
 @Entity
 @Table(name = "products")
 public class Product extends BaseEntity {
 
     private String name;
-    private String barcode;
     private String description;
 
-    private double stockQuantity;
-    private double cost;
+    @Embedded
+    private Barcode barcode;
+
+    private BigDecimal stockQuantity;
+    private BigDecimal cost;
 
     @Enumerated(EnumType.STRING)
     private UnitType unitType;
@@ -29,9 +33,9 @@ public class Product extends BaseEntity {
     protected Product() {
     }
 
-    public Product(String name, String barcode, UnitType unitType, double initialStock, double cost) {
+    public Product(String name, Barcode barcode, UnitType unitType, BigDecimal initialStock, BigDecimal cost) {
         Guard.againstNullOrEmpty(name, "Product name");
-        Guard.againstNullOrEmpty(barcode, "Barcode");
+        Guard.againstNull(barcode, "Barcode");
         Guard.againstNull(unitType, "Unit Type");
         Guard.againstNegative(initialStock, "Initial stock");
         Guard.againstNegative(cost, "Cost");
@@ -45,28 +49,28 @@ public class Product extends BaseEntity {
         this.stockQuantity = initialStock;
     }
 
-    public void restock(double quantityIn, double newEntryCost) {
+    public void restock(BigDecimal quantityIn, BigDecimal newEntryCost) {
         Guard.againstZeroOrNegative(quantityIn, "Quantity to add");
         Guard.againstZeroOrNegative(newEntryCost, "New Entry Cost");
         validateStockForUnitType(quantityIn, this.unitType);
 
         this.cost = newEntryCost;
-        this.stockQuantity += quantityIn;
+        this.stockQuantity = this.stockQuantity.add(quantityIn);
     }
 
-    public void reduceStock(double quantity) {
+    public void reduceStock(BigDecimal quantity) {
         Guard.againstNegative(quantity, "Quantity to reduce");
         validateStockForUnitType(quantity, this.unitType);
 
-        if (this.stockQuantity < quantity) {
+        if (this.stockQuantity.compareTo(quantity) < 0) {
             throw new DomainException("Insufficient stock for product: " + this.name);
         }
-        this.stockQuantity -= quantity;
+        this.stockQuantity = this.stockQuantity.subtract(quantity);
     }
 
-    private void validateStockForUnitType(double quantity, UnitType type) {
+    private void validateStockForUnitType(BigDecimal quantity, UnitType type) {
         if (!type.allowsFractions()) {
-            Guard.againstFractional(quantity, "Stock for " + type + " products");
+            Guard.againstFractional(quantity, "Stock for UNIT products");
         }
     }
 
@@ -74,7 +78,7 @@ public class Product extends BaseEntity {
         return name;
     }
 
-    public String getBarcode() {
+    public Barcode getBarcode() {
         return barcode;
     }
 
@@ -86,7 +90,7 @@ public class Product extends BaseEntity {
         return description;
     }
 
-    public double getStockQuantity() {
+    public BigDecimal getStockQuantity() {
         return stockQuantity;
     }
 
@@ -94,7 +98,7 @@ public class Product extends BaseEntity {
         return unitType;
     }
 
-    public double getCost() {
+    public BigDecimal getCost() {
         return cost;
     }
 }
