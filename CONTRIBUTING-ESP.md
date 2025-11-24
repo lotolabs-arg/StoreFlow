@@ -5,17 +5,17 @@ siguientes pautas.
 
 ## 🌿 Estrategia de Ramas (Branching)
 
-Usamos ramas cortas y específicas. Nunca commiteamos directamente a `main`.
+Usamos ramas cortas y específicas, siempre prefijadas con tu usuario. Nunca commiteamos directamente a `main`.
 
-**Formato:** `tipo/descripcion-corta-en-ingles`
+**Formato:** `usuario/tipo/descripcion-corta-en-ingles`
 
-| Tipo        | Uso                                    | Ejemplo                             |
-|:------------|:---------------------------------------|:------------------------------------|
-| `feat/`     | Nueva funcionalidad                    | `feat/stock-decimal-support`        |
-| `fix/`      | Corrección de bug                      | `fix/calculate-price-overflow`      |
-| `chore/`    | Configuración/Mantenimiento            | `chore/update-pom-dependencies`     |
-| `refactor/` | Mejoras de código sin cambio funcional | `refactor/extract-validation-logic` |
-| `docs/`     | Documentación                          | `docs/update-readme`                |
+| Tipo        | Uso                                    | Ejemplo                                     |
+|:------------|:---------------------------------------|:--------------------------------------------|
+| `feat/`     | Nueva funcionalidad                    | `ltoloza/feat/stock-decimal-support`        |
+| `fix/`      | Corrección de bug                      | `ltoloza/fix/calculate-price-overflow`      |
+| `chore/`    | Configuración/Mantenimiento            | `ltoloza/chore/update-pom-dependencies`     |
+| `refactor/` | Mejoras de código sin cambio funcional | `ltoloza/refactor/extract-validation-logic` |
+| `docs/`     | Documentación                          | `ltoloza/docs/update-readme`                |
 
 ---
 
