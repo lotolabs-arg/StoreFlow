@@ -4,17 +4,17 @@ Thank you for helping build StoreFlow! To maintain code quality and consistency,
 
 ## 🌿 Branching Strategy
 
-We use short, specific branches. Never commit directly to `main`.
+We use short, specific branches prefixed with your username. Never commit directly to `main`.
 
-**Format:** `type/short-description-in-english`
+**Format:** `username/type/short-description-in-english`
 
-| Type        | Usage                                 | Example                             |
-|:------------|:--------------------------------------|:------------------------------------|
-| `feat/`     | New feature                           | `feat/stock-decimal-support`        |
-| `fix/`      | Bug fix                               | `fix/calculate-price-overflow`      |
-| `chore/`    | Configuration/Maintenance             | `chore/update-pom-dependencies`     |
-| `refactor/` | Code improvement without logic change | `refactor/extract-validation-logic` |
-| `docs/`     | Documentation                         | `docs/update-readme`                |
+| Type        | Usage                                 | Example                                     |
+|:------------|:--------------------------------------|:--------------------------------------------|
+| `feat/`     | New feature                           | `ltoloza/feat/stock-decimal-support`        |
+| `fix/`      | Bug fix                               | `ltoloza/fix/calculate-price-overflow`      |
+| `chore/`    | Configuration/Maintenance             | `ltoloza/chore/update-pom-dependencies`     |
+| `refactor/` | Code improvement without logic change | `ltoloza/refactor/extract-validation-logic` |
+| `docs/`     | Documentation                         | `ltoloza/docs/update-readme`                |
 
 ---
 
