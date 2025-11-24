@@ -1,35 +1,42 @@
 package infrastructure.ui;
 
+import application.interfaces.UserRepository;
+import application.session.SessionContext;
+import application.usecases.LoginUser;
+import infrastructure.persistence.FakeUserRepository;
+import infrastructure.ui.controller.LoginController;
 import java.io.IOException;
-import java.net.URL;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-/**
- * JavaFX App Entry Point.
- */
 public class MainApp extends Application {
-
-    private static final int WINDOW_WIDTH = 800;
-    private static final int WINDOW_HEIGHT = 600;
 
     @Override
     public void start(Stage stage) throws IOException {
-        URL fxmlUrl = getClass().getResource("/view/main_layout.fxml");
 
-        if (fxmlUrl == null) {
-            throw new IOException("FXML file not found at /view/main_layout.fxml");
-        }
+        UserRepository userRepository = new FakeUserRepository();
+        SessionContext sessionContext = SessionContext.getInstance();
+        LoginUser loginUserUseCase = new LoginUser(userRepository, sessionContext);
 
-        FXMLLoader loader = new FXMLLoader(fxmlUrl);
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/login.fxml"));
+        loader.setControllerFactory(param -> {
+            if (param == LoginController.class) {
+                return new LoginController(loginUserUseCase);
+            }
+            try {
+                return param.getConstructor().newInstance();
+            } catch (ReflectiveOperationException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
         Parent root = loader.load();
+        Scene scene = new Scene(root);
 
-        Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
-
-        stage.setTitle("StoreFlow - Point of Sale");
+        stage.setTitle("StoreFlow - Login");
         stage.setScene(scene);
         stage.show();
     }
