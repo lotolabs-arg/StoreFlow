@@ -5,6 +5,7 @@ import application.interfaces.UserRepository;
 import application.session.SessionContext;
 import application.usecases.LoginUser;
 import application.usecases.RegisterProductEntry;
+import application.usecases.UpdateProductDetails;
 import infrastructure.persistence.SqliteProductRepository;
 import infrastructure.persistence.SqliteUserRepository;
 import infrastructure.persistence.seed.DatabaseSeeder;
@@ -22,10 +23,11 @@ public class MainApp extends Application {
 
         SessionContext sessionContext = SessionContext.getInstance();
         LoginUser loginUser = new LoginUser(userRepository, sessionContext);
+
         RegisterProductEntry registerProduct = new RegisterProductEntry(productRepository);
+        UpdateProductDetails updateProduct = new UpdateProductDetails(productRepository);
 
-        Dependencies dependencies = new Dependencies(loginUser, registerProduct);
-
+        Dependencies dependencies = new Dependencies(loginUser, registerProduct, updateProduct, productRepository);
         ViewNavigator navigator = new ViewNavigator(stage, dependencies);
         navigator.showLogin();
     }

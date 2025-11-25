@@ -60,7 +60,12 @@ public class ViewNavigator {
                 return new LoginController(dependencies.getLoginUser(), this);
             }
             if (param == ProductController.class) {
-                return new ProductController(dependencies.getRegisterProduct(), SessionContext.getInstance());
+                return new ProductController(
+                    dependencies.getRegisterProduct(),
+                    dependencies.getUpdateProductDetails(),
+                    dependencies.getProductRepository(),
+                    SessionContext.getInstance()
+                );
             }
             if (param == MainLayoutController.class) {
                 return new MainLayoutController();

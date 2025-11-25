@@ -9,6 +9,7 @@ import domain.stock.UnitType;
 import domain.users.User;
 import domain.users.UserRole;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,11 @@ class RegisterProductEntryTest {
                 return Optional.of(storedProduct);
             }
             return Optional.empty();
+        }
+
+        @Override
+        public List<Product> findAll() {
+            return List.of();
         }
     };
 

@@ -1,16 +1,24 @@
 package infrastructure.ui.controller;
 
 import application.dtos.ProductEntryDTO;
+import application.dtos.UpdateProductDTO;
+import application.interfaces.ProductRepository;
 import application.session.SessionContext;
 import application.usecases.RegisterProductEntry;
+import application.usecases.UpdateProductDetails;
 import domain.common.DomainException;
+import domain.stock.Product;
 import domain.stock.UnitType;
 import domain.users.User;
 import java.math.BigDecimal;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -29,30 +37,62 @@ public class ProductController {
     @FXML private RadioButton unitTypeUnit;
     @FXML private RadioButton unitTypeKilo;
 
+    @FXML private ListView<Product> productListView;
+    @FXML private Button saveButton;
+    @FXML private Button cancelButton;
+
     private final RegisterProductEntry registerProductEntry;
+    private final UpdateProductDetails updateProductDetails;
+    private final ProductRepository productRepository;
     private final SessionContext sessionContext;
 
-    public ProductController(RegisterProductEntry registerProductEntry, SessionContext sessionContext) {
+    private String selectedProductId;
+
+    public ProductController(RegisterProductEntry registerProductEntry,
+                             UpdateProductDetails updateProductDetails,
+                             ProductRepository productRepository,
+                             SessionContext sessionContext) {
         this.registerProductEntry = registerProductEntry;
+        this.updateProductDetails = updateProductDetails;
+        this.productRepository = productRepository;
         this.sessionContext = sessionContext;
     }
 
+    @FXML
+    public void initialize() {
+        refreshList();
+
+        productListView.getSelectionModel().selectedItemProperty()
+                .            addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                onProductSelected(newVal);
+            }
+        });
+    }
+
+    private void onProductSelected(Product product) {
+        this.selectedProductId = product.getId();
+
+        barcodeField.setText(product.getBarcode().getValue());
+        nameField.setText(product.getName());
+        descriptionField.setText(product.getDescription());
+        costField.setText(product.getCost().toString());
+        quantityField.setText(product.getStockQuantity().toString());
+
+        if (product.getUnitType() == UnitType.UNIT) {
+            unitTypeUnit.setSelected(true);
+        } else {
+            unitTypeKilo.setSelected(true);
+        }
+
+        saveButton.setText("Guardar Cambios");
+        cancelButton.setVisible(true);
+
+        quantityField.setDisable(true);
+    }
+
     /**
-     * Handles the "Save/Restock" button click event.
-     * <p>
-     * This method orchestrates the product entry process by:
-     * 1. Retrieving the currently logged-in user from the session context.
-     * 2. transforming the raw form data into a structured {@link ProductEntryDTO}.
-     * 3. Invoking the {@link RegisterProductEntry} use case to execute the business logic.
-     * 4. Providing feedback to the user via Alerts (Success, Validation Warning, or System Error).
-     * </p>
-     *
-     * @throws DomainException       if the business rules fail (e.g., duplicate barcode, invalid stock).
-     * Handled by showing a WARNING alert.
-     * @throws NumberFormatException if the numeric fields (Cost, Quantity) contain invalid characters.
-     * Handled by showing an ERROR alert.
-     * @throws RuntimeException      if an unexpected system error occurs.
-     * Handled by logging the error and showing a generic ERROR alert.
+     * Guarda
      */
     @FXML
     public void onSaveProductClick() {
@@ -60,45 +100,102 @@ public class ProductController {
             User currentUser = sessionContext.getCurrentUser()
                 .orElseThrow(() -> new DomainException("No active session found."));
 
-            ProductEntryDTO dto = buildDtoFromForm();
+            if (selectedProductId == null) {
+                ProductEntryDTO dto = buildEntryDtoFromForm();
+                registerProductEntry.execute(currentUser, dto);
+                showAlert(Alert.AlertType.INFORMATION, "Éxito", "Producto procesado correctamente.");
+            } else {
+                if (confirmUpdate()) {
+                    UpdateProductDTO dto = buildUpdateDtoFromForm();
+                    updateProductDetails.execute(currentUser, dto);
+                    showAlert(Alert.AlertType.INFORMATION, "Éxito", "Producto modificado correctamente.");
+                } else {
+                    return;
+                }
+            }
 
-            registerProductEntry.execute(currentUser, dto);
-
-            showAlert(Alert.AlertType.INFORMATION, "Éxito", "Producto guardado/actualizado correctamente.");
             clearForm();
+            refreshList();
 
         } catch (DomainException e) {
             showAlert(Alert.AlertType.WARNING, "Validación", e.getMessage());
         } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Error de Formato", "Por favor verifique que Costo y Cantidad sean números"
-                + " válidos.");
+            showAlert(Alert.AlertType.ERROR, "Error de Formato", "Verifique los números ingresados.");
         } catch (RuntimeException e) {
-            LOGGER.log(Level.SEVERE, "Unexpected error saving product", e);
-            showAlert(Alert.AlertType.ERROR, "Error del Sistema", "Ocurrió un error inesperado.");
+            LOGGER.log(Level.SEVERE, "Error saving product", e);
+            showAlert(Alert.AlertType.ERROR, "Error", "Ocurrió un error inesperado.");
         }
     }
 
-    private ProductEntryDTO buildDtoFromForm() {
-        String barcode = barcodeField.getText();
-        String name = nameField.getText();
-        String description = descriptionField.getText();
-
-        BigDecimal cost = new BigDecimal(costField.getText().replace(",", "."));
-        BigDecimal quantity = new BigDecimal(quantityField.getText().replace(",", "."));
-
-        UnitType type = unitTypeUnit.isSelected() ? UnitType.UNIT : UnitType.FRACTION;
-
-        return new ProductEntryDTO(name, description, barcode, type, quantity, cost);
+    @FXML
+    public void onCancelClick() {
+        clearForm();
     }
 
     private void clearForm() {
+        selectedProductId = null;
         barcodeField.clear();
         nameField.clear();
         descriptionField.clear();
         costField.clear();
         quantityField.clear();
         unitTypeUnit.setSelected(true);
+        quantityField.setDisable(false);
+
+        saveButton.setText("Guardar / Reponer");
+        cancelButton.setVisible(false);
+
+        productListView.getSelectionModel().clearSelection();
         barcodeField.requestFocus();
+    }
+
+    private void refreshList() {
+        productListView.setItems(FXCollections.observableArrayList(productRepository.findAll()));
+        productListView.setCellFactory(param -> new javafx.scene.control.ListCell<>() {
+            @Override
+            protected void updateItem(Product item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item.getName() + " - " + item.getBarcode().getValue());
+                }
+            }
+        });
+    }
+
+    private boolean confirmUpdate() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmar Edición");
+        alert.setHeaderText("Está a punto de modificar un producto existente.");
+        alert.setContentText("¿Desea continuar?");
+        return alert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK;
+    }
+
+    private ProductEntryDTO buildEntryDtoFromForm() {
+        return new ProductEntryDTO(
+            nameField.getText(),
+            descriptionField.getText(),
+            barcodeField.getText(),
+            getSelectedUnitType(),
+            new BigDecimal(quantityField.getText().replace(",", ".")),
+            new BigDecimal(costField.getText().replace(",", "."))
+        );
+    }
+
+    private UpdateProductDTO buildUpdateDtoFromForm() {
+        return new UpdateProductDTO(
+            selectedProductId,
+            nameField.getText(),
+            descriptionField.getText(),
+            barcodeField.getText(),
+            getSelectedUnitType(),
+            new BigDecimal(costField.getText().replace(",", "."))
+        );
+    }
+
+    private UnitType getSelectedUnitType() {
+        return unitTypeUnit.isSelected() ? UnitType.UNIT : UnitType.FRACTION;
     }
 
     private void showAlert(Alert.AlertType type, String title, String content) {

@@ -4,6 +4,7 @@ import application.interfaces.ProductRepository;
 import domain.stock.Barcode;
 import domain.stock.Product;
 import infrastructure.persistence.config.HibernateUtil;
+import java.util.List;
 import java.util.Optional;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -41,6 +42,13 @@ public class SqliteProductRepository implements ProductRepository {
             Query<Product> query = session.createQuery(hql, Product.class);
             query.setParameter("barcode", barcode.getValue());
             return query.uniqueResultOptional();
+        }
+    }
+
+    @Override
+    public List<Product> findAll() {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createQuery("FROM Product", Product.class).list();
         }
     }
 }
