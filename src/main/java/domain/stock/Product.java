@@ -74,6 +74,31 @@ public class Product extends BaseEntity {
         }
     }
 
+    /**
+     * Updates the product details with new values.
+     * Used for corrections or administrative updates.
+     *
+     * @param name        new name
+     * @param description new description
+     * @param barcode     new barcode (identity)
+     * @param unitType    new unit type (must be compatible with current stock)
+     * @param cost        new replacement cost
+     */
+    public void updateDetails(String name, String description, Barcode barcode, UnitType unitType, BigDecimal cost) {
+        Guard.againstNullOrEmpty(name, "Product name");
+        Guard.againstNull(barcode, "Barcode");
+        Guard.againstNull(unitType, "Unit Type");
+        Guard.againstNegative(cost, "Cost");
+
+        validateStockForUnitType(this.stockQuantity, unitType);
+
+        this.name = name;
+        this.description = description;
+        this.barcode = barcode;
+        this.unitType = unitType;
+        this.cost = cost;
+    }
+
     public String getName() {
         return name;
     }

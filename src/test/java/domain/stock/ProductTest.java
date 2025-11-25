@@ -95,7 +95,7 @@ class ProductTest {
         Product tela = new Product(
             "Tela",
             new Barcode("999"),
-            UnitType.METER,
+            UnitType.FRACTION,
             new BigDecimal("10.0"),
             new BigDecimal("500.00")
         );
@@ -111,7 +111,7 @@ class ProductTest {
         Product tela = new Product(
             "Tela",
             new Barcode("999"),
-            UnitType.METER,
+            UnitType.FRACTION,
             new BigDecimal("2.0"),
             new BigDecimal("500.00")
         );
@@ -119,5 +119,41 @@ class ProductTest {
         assertThrows(DomainException.class, () -> {
             tela.reduceStock(new BigDecimal("2.1"));
         }, "Should fail because stock would become negative");
+    }
+
+    @Test
+    @DisplayName("Should update product details successfully")
+    void shouldUpdateProductDetails() {
+        Product product = new Product("Coca", new Barcode("111"), UnitType.UNIT, BigDecimal.TEN, BigDecimal.TEN);
+        Barcode newBarcode = new Barcode("222");
+
+        product.updateDetails(
+            "Coca Zero",
+            "Sin azúcar",
+            newBarcode,
+            UnitType.UNIT,
+            new BigDecimal("120.00")
+        );
+
+        assertEquals("Coca Zero", product.getName());
+        assertEquals("Sin azúcar", product.getDescription());
+        assertEquals(newBarcode, product.getBarcode());
+        assertEquals(new BigDecimal("120.00"), product.getCost());
+    }
+
+    @Test
+    @DisplayName("Should fail when changing type to UNIT if stock has decimals")
+    void shouldFail_WhenChangingToUnitWithDecimalStock() {
+        Product pan = new Product("Pan", new Barcode("333"), UnitType.FRACTION, new BigDecimal("1.5"), BigDecimal.TEN);
+
+        assertThrows(DomainException.class, () -> {
+            pan.updateDetails(
+                pan.getName(),
+                pan.getDescription(),
+                pan.getBarcode(),
+                UnitType.UNIT,
+                pan.getCost()
+            );
+        }, "Should prevent changing to UNIT if current stock is fractional");
     }
 }
