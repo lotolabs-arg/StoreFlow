@@ -1,47 +1,35 @@
 package infrastructure.ui;
 
+import application.interfaces.ProductRepository;
 import application.interfaces.UserRepository;
 import application.session.SessionContext;
 import application.usecases.LoginUser;
+import application.usecases.RegisterProductEntry;
+import application.usecases.UpdateProductDetails;
+import infrastructure.persistence.SqliteProductRepository;
 import infrastructure.persistence.SqliteUserRepository;
 import infrastructure.persistence.seed.DatabaseSeeder;
-import infrastructure.ui.controller.LoginController;
 import java.io.IOException;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 public class MainApp extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-
         UserRepository userRepository = new SqliteUserRepository();
+        ProductRepository productRepository = new SqliteProductRepository();
         new DatabaseSeeder(userRepository).seed();
 
         SessionContext sessionContext = SessionContext.getInstance();
-        LoginUser loginUserUseCase = new LoginUser(userRepository, sessionContext);
+        LoginUser loginUser = new LoginUser(userRepository, sessionContext);
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/login.fxml"));
-        loader.setControllerFactory(param -> {
-            if (param == LoginController.class) {
-                return new LoginController(loginUserUseCase);
-            }
-            try {
-                return param.getConstructor().newInstance();
-            } catch (ReflectiveOperationException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        RegisterProductEntry registerProduct = new RegisterProductEntry(productRepository);
+        UpdateProductDetails updateProduct = new UpdateProductDetails(productRepository);
 
-        Parent root = loader.load();
-        Scene scene = new Scene(root);
-
-        stage.setTitle("StoreFlow - Login");
-        stage.setScene(scene);
-        stage.show();
+        Dependencies dependencies = new Dependencies(loginUser, registerProduct, updateProduct, productRepository);
+        ViewNavigator navigator = new ViewNavigator(stage, dependencies);
+        navigator.showLogin();
     }
 
     public static void main(String[] args) {
