@@ -5,9 +5,7 @@ package domain.stock;
  */
 public enum UnitType {
     UNIT(false),
-    KILOGRAM(true),
-    METER(true),
-    LITERS(true);
+    FRACTION(true);
 
     private final boolean allowsFractions;
 

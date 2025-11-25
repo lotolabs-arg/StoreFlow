@@ -1,12 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.AnchorPane?>
 
-<StackPane xmlns="http://javafx.com/javafx"
-           xmlns:fx="http://javafx.com/fxml"
-           prefHeight="600.0" prefWidth="800.0">
+<TabPane prefHeight="600.0" prefWidth="900.0" side="LEFT" tabClosingPolicy="UNAVAILABLE"
+         xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+         fx:controller="infrastructure.ui.controller.MainLayoutController">
+    <tabs>
+        <Tab text="Venta">
+            <content>
+                <AnchorPane/>
+            </content>
+        </Tab>
 
-    <Label text="Welcome to StoreFlow" style="-fx-font-size: 24px;"/>
+        <Tab text="Productos">
+            <content>
+                <fx:include source="product_tab.fxml"/>
+            </content>
+        </Tab>
 
-</StackPane>
+        <Tab text="Administración">
+            <content>
+                <AnchorPane/>
+            </content>
+        </Tab>
+    </tabs>
+</TabPane>

@@ -8,6 +8,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import infrastructure.ui.ViewNavigator;
 
 public class LoginController {
 
@@ -20,9 +21,11 @@ public class LoginController {
     private PasswordField passwordField;
 
     private final LoginUser loginUser;
+    private final ViewNavigator navigator;
 
-    public LoginController(LoginUser loginUser) {
+    public LoginController(LoginUser loginUser, ViewNavigator navigator) {
         this.loginUser = loginUser;
+        this.navigator = navigator;
     }
 
     @FXML
@@ -33,7 +36,7 @@ public class LoginController {
 
             loginUser.execute(username, password);
 
-            showAlert(Alert.AlertType.INFORMATION, "Success", "Login successful!");
+            navigator.showMainLayout();
 
         } catch (DomainException e) {
             showAlert(Alert.AlertType.ERROR, "Login Failed", e.getMessage());
