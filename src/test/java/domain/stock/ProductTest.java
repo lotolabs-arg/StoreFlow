@@ -124,7 +124,8 @@ class ProductTest {
     @Test
     @DisplayName("Should update product details successfully")
     void shouldUpdateProductDetails() {
-        Product product = new Product("Coca", new Barcode("111"), UnitType.UNIT, BigDecimal.TEN, BigDecimal.TEN);
+        Product product = new Product("Coca", new Barcode("111"),
+            UnitType.UNIT, BigDecimal.TEN, BigDecimal.TEN);
         Barcode newBarcode = new Barcode("222");
 
         product.updateDetails(
@@ -144,7 +145,8 @@ class ProductTest {
     @Test
     @DisplayName("Should fail when changing type to UNIT if stock has decimals")
     void shouldFail_WhenChangingToUnitWithDecimalStock() {
-        Product pan = new Product("Pan", new Barcode("333"), UnitType.FRACTION, new BigDecimal("1.5"), BigDecimal.TEN);
+        Product pan = new Product("Pan", new Barcode("333"), UnitType.FRACTION,
+            new BigDecimal("1.5"), BigDecimal.TEN);
 
         assertThrows(DomainException.class, () -> {
             pan.updateDetails(
@@ -155,5 +157,27 @@ class ProductTest {
                 pan.getCost()
             );
         }, "Should prevent changing to UNIT if current stock is fractional");
+    }
+
+    @Test
+    @DisplayName("Should adjust stock manually")
+    void shouldAdjustStockManually() {
+        Product product = new Product("Coca", new Barcode("111"), UnitType.UNIT,
+            BigDecimal.TEN, BigDecimal.TEN);
+
+        product.adjustStock(new BigDecimal("5.0"));
+
+        assertEquals(new BigDecimal("5.0"), product.getStockQuantity());
+    }
+
+    @Test
+    @DisplayName("Should fail when adjusting stock to negative")
+    void shouldFail_WhenAdjustingStockToNegative() {
+        Product product = new Product("Coca", new Barcode("111"), UnitType.UNIT,
+            BigDecimal.TEN, BigDecimal.TEN);
+
+        assertThrows(DomainException.class, () -> {
+            product.adjustStock(new BigDecimal("-1.0"));
+        });
     }
 }

@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 
 /**
  * Represents a physical item in the inventory.
- * Uses precise arithmetic for financial and stock calculations.
+ * Manages stock levels, identification (barcode) and replacement cost.
  */
 @Entity
 @Table(name = "products")
@@ -68,12 +68,6 @@ public class Product extends BaseEntity {
         this.stockQuantity = this.stockQuantity.subtract(quantity);
     }
 
-    private void validateStockForUnitType(BigDecimal quantity, UnitType type) {
-        if (!type.allowsFractions()) {
-            Guard.againstFractional(quantity, "Stock for UNIT products");
-        }
-    }
-
     /**
      * Updates the product details with new values.
      * Used for corrections or administrative updates.
@@ -97,6 +91,24 @@ public class Product extends BaseEntity {
         this.barcode = barcode;
         this.unitType = unitType;
         this.cost = cost;
+    }
+
+    /**
+     * Manually adjusts the stock level.
+     * Used for inventory corrections (loss, theft, or recount).
+     *
+     * @param newStock the new total stock quantity
+     */
+    public void adjustStock(BigDecimal newStock) {
+        Guard.againstNegative(newStock, "Stock");
+        validateStockForUnitType(newStock, this.unitType);
+        this.stockQuantity = newStock;
+    }
+
+    private void validateStockForUnitType(BigDecimal quantity, UnitType type) {
+        if (!type.allowsFractions()) {
+            Guard.againstFractional(quantity, "Stock for UNIT products");
+        }
     }
 
     public String getName() {
